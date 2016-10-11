@@ -20,19 +20,31 @@ programs = (
 )
 
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+headers = {}
 
 def podcasts(videoProgramId):
     p = []
     url = 'http://api.radio24syv.dk/podcasts/program/%s' % videoProgramId
-    json = requests.get(url, params={'size': 5}, headers=headers).json()
+    r = requests.get(url, params={'size': 5}, headers=headers)
+    #print(url)
+    #print(r.text)
+    json = r.json()
     for e in json:
         url = 'http://arkiv.radio24syv.dk%s' % e['audioInfo']['url']
         date = datetime.strptime(e['publishInfo']['createdAt'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        p.append({'title': e['programInfo']['title'], 'url': url, 'date': date})
+        p.append({'title': e['programInfo']['title'], 'url': url, 'date': date, 'part': e['part'],})
     return p
 
+def file_name_(podcast):
+    if podcast['part'] is None:
+        part = ''
+    else:
+        part = '-'+podcast['part'][1:2]
+    file_name = 'podcasts/'+slugify(podcast['title']+'-'+podcast['date'].strftime('%Y-%m-%d'))+part+'.mp3'
+    return file_name
+
 def download(podcast):
-    file_name = 'podcasts/'+slugify(podcast['title']+'-'+podcast['date'].strftime('%Y-%m-%d'))+'.mp3'
+    file_name = file_name_(podcast)
     if isfile(file_name):
         return file_name
     r = requests.get(podcast['url'], stream=True, headers=headers)
