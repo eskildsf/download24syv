@@ -1,3 +1,5 @@
+#!/data/tools/download24syv/env/bin/python
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 from slugify import slugify
 from os.path import isfile
@@ -14,20 +16,20 @@ import requests
 programs = (
 '13976201', # Q & A
 '6555368', # Huxi og det Gode Gamle Folketing
-'13792677', # Huxi og det Gode Gamle Folketing Sammendrag
 '10839671', # Den Korte Radioavis
-'13973704', # Se Europa og Do
+'8629629', # Sondagspolitiken
+'3843419', # Cordua & Steno
+'12144388', # Politiradio
 )
 
+storage = '/data/usb/podcasts/'
+
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-headers = {}
 
 def podcasts(videoProgramId):
     p = []
     url = 'http://api.radio24syv.dk/podcasts/program/%s' % videoProgramId
-    r = requests.get(url, params={'size': 5}, headers=headers)
-    #print(url)
-    #print(r.text)
+    r = requests.get(url, params={'size': 2}, headers=headers)
     json = r.json()
     for e in json:
         url = 'http://arkiv.radio24syv.dk%s' % e['audioInfo']['url']
@@ -40,7 +42,7 @@ def file_name_(podcast):
         part = ''
     else:
         part = '-'+podcast['part'][1:2]
-    file_name = 'podcasts/'+slugify(podcast['title']+'-'+podcast['date'].strftime('%Y-%m-%d'))+part+'.mp3'
+    file_name = storage+slugify(podcast['title']+'-'+podcast['date'].strftime('%Y-%m-%d'))+part+'.mp3'
     return file_name
 
 def download(podcast):
